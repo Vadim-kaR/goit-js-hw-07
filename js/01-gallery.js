@@ -3,8 +3,11 @@ import { galleryItems } from './gallery-items.js';
 const gallaryContainer = document.querySelector('.gallery');
 const imageListMurkup = createImageListMarkup(galleryItems);
 
-gallaryContainer.innerHTML = imageListMurkup;
-gallaryContainer.addEventListener('click' ,() => onImageClick)
+gallaryContainer.insertAdjacentHTML('afterbegin', imageListMurkup);
+gallaryContainer.addEventListener('click', onImageClick);
+// gallaryContainer.addEventListener('keydown', onImageKeyDown);
+
+let instance = null;
 
 function createImageListMarkup(item) { 
     return item.map(({ preview, original, description }) =>
@@ -26,7 +29,18 @@ function onImageClick(e) {
         return;
     }
     e.preventDefault();
+
+    
+    instance = basicLightbox.create(
+        `<img src="${e.target.dataset.source}">`, {
+            onShow: () => {gallaryContainer.addEventListener('keydown', onImageKeyDown)},
+            onClose: () => {gallaryContainer.removeEventListener('keydown', onImageKeyDown)}
+        });
+    instance.show();
 }
 
-
-
+function onImageKeyDown(e) { 
+    if (e.key === "Escape") {
+        instance.close();
+    }
+}
